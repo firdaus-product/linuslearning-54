@@ -1,576 +1,769 @@
 <!DOCTYPE html>
-<html lang="ms-MY">
+<html lang="ms-MY" class="overflow-hidden overscroll-none">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Matematik Ceria: Operasi Tambah</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+   <title>Matematik Ceria: Operasi Tambah</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <style>
-    /* --- UI STYLE (TEMA HIJAU KONSISTEN) --- */
-    body { 
-        font-family: 'Fredoka', sans-serif; 
-        background-color: #f0fdf4; 
-        background-image: radial-gradient(#86efac 2px, transparent 2px); 
-        background-size: 30px 30px; 
-    }
-    
-    /* Card Container */
-    .game-card { 
-        background: white; 
-        border: 4px solid #475569; 
-        box-shadow: 8px 8px 0px #00000020; 
-        border-radius: 1.5rem; 
-        min-height: 600px; 
-        position: relative;
-    }
-    
-    /* Buttons 3D */
-    .btn-3d { 
-        transition: all 0.1s; 
-        border-bottom-width: 6px; 
-        border-color: rgba(0,0,0,0.2); 
-        transform: translateY(0); 
-        cursor: pointer; 
-        display: inline-block; 
-    }
-    .btn-3d:active:not(:disabled) { 
-        transform: translateY(4px); 
-        border-bottom-width: 2px; 
-        box-shadow: none; 
-    }
-    .btn-3d:disabled { opacity: 0.6; cursor: not-allowed; border-bottom-width: 6px; filter: grayscale(100%); }
+   <style>
+      /* --- UI STYLE (TEMA HIJAU KONSISTEN) --- */
+      body {
+         font-family: 'Fredoka', sans-serif;
+         background-color: #f0fdf4;
+         background-image: radial-gradient(#86efac 2px, transparent 2px);
+         background-size: 30px 30px;
+      }
 
-    /* Animation */
-    .shake { animation: shake 0.4s ease-in-out; }
-    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+      /* Card Container */
+      .game-card {
+         background: white;
+         border: 4px solid #475569;
+         box-shadow: 8px 8px 0px #00000020;
+         border-radius: 1.5rem;
+         /* min-height: 600px; REMOVED */
+         position: relative;
+         display: flex;
+         flex-direction: column;
+         flex: 1;
+         overflow: hidden;
+      }
 
-    /* --- STYLES KHUSUS OPERASI TAMBAH --- */
-    
-    /* Grid Bentuk Lazim */
-    .lazim-grid { display: inline-block; font-size: 2.5rem; line-height: 1.4; }
-    .lazim-row { display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }
-    .lazim-cell { display: flex; width: 3.5rem; height: 3.5rem; align-items: center; justify-content: center; font-weight: bold; color: #475569; }
-    .lazim-cell-plus { display: flex; width: 3.5rem; height: 3.5rem; align-items: center; justify-content: flex-end; padding-right: 0.5rem; font-weight: bold; color: #475569; }
-    
-    .lazim-input {
-        width: 3.5rem; height: 3.5rem; text-align: center; font-weight: bold; font-family: 'Fredoka', sans-serif; font-size: 2rem;
-        border: 3px solid #cbd5e1; border-radius: 0.75rem; margin: 0 2px; background: #fff; outline: none;
-        transition: all 0.2s;
-    }
-    .lazim-input:focus { border-color: #3b82f6; }
-    .lazim-input:disabled { background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; }
-    .lazim-input.correct { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
-    .lazim-input.wrong { border-color: #ef4444; background: #fee2e2; animation: shake 0.4s; }
+      /* Buttons 3D */
+      .btn-3d {
+         transition: all 0.1s;
+         border-bottom-width: 6px;
+         border-color: rgba(0, 0, 0, 0.2);
+         transform: translateY(0);
+         cursor: pointer;
+         display: inline-block;
+      }
 
-    .lazim-hr { width: 100%; margin: 8px 0; border-top: 6px solid #475569; border-radius: 3px; }
+      .btn-3d:active:not(:disabled) {
+         transform: translateY(4px);
+         border-bottom-width: 2px;
+         box-shadow: none;
+      }
 
-    /* Kumpul Semula Box */
-    .lazim-carry-box {
-        display: flex; width: 3.5rem; height: 2.5rem; align-items: center; justify-content: center;
-        font-size: 1.5rem; color: #ef4444; font-weight: bold; background: #fee2e2; 
-        border-radius: 0.5rem; border: 2px solid #fca5a5; margin: 0 2px; opacity: 0; transition: opacity 0.5s;
-    }
-    .anim-fade-in { opacity: 1 !important; }
+      .btn-3d:disabled {
+         opacity: 0.6;
+         cursor: not-allowed;
+         border-bottom-width: 6px;
+         filter: grayscale(100%);
+      }
 
-    /* Blok Visual */
-    .block-container { 
-        display: flex; gap: 2px; justify-content: center; min-height: 80px; 
-        align-items: flex-end; padding: 4px; flex-wrap: wrap;
-    }
-    
-    .block-ra { 
-        width: 60px; height: 60px; background-color: #cffafe; border: 2px solid #06b6d4; border-radius: 4px;
-        background-image: linear-gradient(#06b6d4 1px, transparent 1px), linear-gradient(90deg, #06b6d4 1px, transparent 1px);
-        background-size: 10px 10px;
-    }
-    .block-pu { 
-        width: 15px; height: 60px; background-color: #fed7aa; border: 2px solid #f97316; border-radius: 4px;
-        background-image: linear-gradient(#f97316 1px, transparent 1px); background-size: 100% 10px;
-    }
-    .block-sa { 
-        width: 15px; height: 15px; background-color: #fef08a; border: 2px solid #eab308; border-radius: 50%; margin: 1px;
-    }
+      /* Animation */
+      .shake {
+         animation: shake 0.4s ease-in-out;
+      }
 
-    @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-    .anim-pop-in { animation: popIn 0.5s forwards; border-color: #ef4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); z-index: 10; }
+      @keyframes shake {
 
-    /* Drag & Drop Cards */
-    .number-card { 
-        transition: all .3s; cursor: grab; 
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1); border-width: 3px; border-radius: 1rem; 
-        display: flex; align-items: center; justify-content: center; background: white;
-    }
-    .number-card:active { cursor: grabbing; transform: scale(0.95); }
-    .dragging { opacity: 0.5; transform: scale(0.9); }
-    
-    .drop-zone { 
-        border: 3px dashed #cbd5e1; background-color: #f8fafc; 
-        transition: all .3s ease; border-radius: 1rem; 
-        display: flex; align-items: center; justify-content: center;
-        font-family: monospace; color: #cbd5e1;
-    }
-    .drop-zone.drag-over { border-color: #3b82f6; background-color: #dbeafe; transform: scale(1.05); }
-    .drop-zone-filled { 
-        border: 3px solid #22c55e !important; background-color: #dcfce7 !important; color: #15803d !important; 
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1); font-family: 'Fredoka', sans-serif;
-    }
+         0%,
+         100% {
+            transform: translateX(0);
+         }
 
-  </style>
+         25% {
+            transform: translateX(-8px);
+         }
+
+         75% {
+            transform: translateX(8px);
+         }
+      }
+
+      /* --- STYLES KHUSUS OPERASI TAMBAH --- */
+
+      /* Grid Bentuk Lazim */
+      .lazim-grid {
+         display: inline-block;
+         font-size: 1.5rem;
+         line-height: 1.2;
+      }
+
+      .lazim-row {
+         display: flex;
+         justify-content: flex-end;
+         margin-bottom: 0.25rem;
+      }
+
+      .lazim-cell {
+         display: flex;
+         width: 2.5rem;
+         height: 2.5rem;
+         align-items: center;
+         justify-content: center;
+         font-weight: bold;
+         color: #475569;
+      }
+
+      .lazim-cell-plus {
+         display: flex;
+         width: 2.5rem;
+         height: 2.5rem;
+         align-items: center;
+         justify-content: flex-end;
+         padding-right: 0.25rem;
+         font-weight: bold;
+         color: #475569;
+      }
+
+      .lazim-input {
+         width: 2.5rem;
+         height: 2.5rem;
+         text-align: center;
+         font-weight: bold;
+         font-family: 'Fredoka', sans-serif;
+         font-size: 1.5rem;
+         border: 2px solid #cbd5e1;
+         border-radius: 0.5rem;
+         margin: 0 1px;
+         background: #fff;
+         outline: none;
+         transition: all 0.2s;
+      }
+
+      .lazim-input:focus {
+         border-color: #3b82f6;
+      }
+
+      .lazim-input:disabled {
+         background: #f1f5f9;
+         color: #94a3b8;
+         border-color: #e2e8f0;
+      }
+
+      .lazim-input.correct {
+         background: #dcfce7;
+         border-color: #22c55e;
+         color: #16a34a;
+      }
+
+      .lazim-input.wrong {
+         border-color: #ef4444;
+         background: #fee2e2;
+         animation: shake 0.4s;
+      }
+
+      .lazim-hr {
+         width: 100%;
+         margin: 4px 0;
+         border-top: 4px solid #475569;
+         border-radius: 2px;
+      }
+
+      /* Kumpul Semula Box */
+      .lazim-carry-box {
+         display: flex;
+         width: 2.5rem;
+         height: 1.8rem;
+         align-items: center;
+         justify-content: center;
+         font-size: 1rem;
+         color: #ef4444;
+         font-weight: bold;
+         background: #fee2e2;
+         border-radius: 0.25rem;
+         border: 2px solid #fca5a5;
+         margin: 0 1px;
+         opacity: 0;
+         transition: opacity 0.5s;
+      }
+
+      .anim-fade-in {
+         opacity: 1 !important;
+      }
+
+      /* Blok Visual */
+      .block-container {
+         display: flex;
+         gap: 2px;
+         justify-content: center;
+         min-height: 80px;
+         align-items: flex-end;
+         padding: 4px;
+         flex-wrap: wrap;
+      }
+
+      .block-ra {
+         width: 60px;
+         height: 60px;
+         background-color: #cffafe;
+         border: 2px solid #06b6d4;
+         border-radius: 4px;
+         background-image: linear-gradient(#06b6d4 1px, transparent 1px), linear-gradient(90deg, #06b6d4 1px, transparent 1px);
+         background-size: 10px 10px;
+      }
+
+      .block-pu {
+         width: 15px;
+         height: 60px;
+         background-color: #fed7aa;
+         border: 2px solid #f97316;
+         border-radius: 4px;
+         background-image: linear-gradient(#f97316 1px, transparent 1px);
+         background-size: 100% 10px;
+      }
+
+      .block-sa {
+         width: 15px;
+         height: 15px;
+         background-color: #fef08a;
+         border: 2px solid #eab308;
+         border-radius: 50%;
+         margin: 1px;
+      }
+
+      @keyframes popIn {
+         0% {
+            transform: scale(0);
+            opacity: 0;
+         }
+
+         80% {
+            transform: scale(1.2);
+            opacity: 1;
+         }
+
+         100% {
+            transform: scale(1);
+            opacity: 1;
+         }
+      }
+
+      .anim-pop-in {
+         animation: popIn 0.5s forwards;
+         border-color: #ef4444 !important;
+         box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+         z-index: 10;
+      }
+
+      /* Drag & Drop Cards */
+      .number-card {
+         transition: all .3s;
+         cursor: grab;
+         box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+         border-width: 3px;
+         border-radius: 1rem;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         background: white;
+      }
+
+      .number-card:active {
+         cursor: grabbing;
+         transform: scale(0.95);
+      }
+
+      .dragging {
+         opacity: 0.5;
+         transform: scale(0.9);
+      }
+
+      .drop-zone {
+         border: 3px dashed #cbd5e1;
+         background-color: #f8fafc;
+         transition: all .3s ease;
+         border-radius: 1rem;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         font-family: monospace;
+         color: #cbd5e1;
+      }
+
+      .drop-zone.drag-over {
+         border-color: #3b82f6;
+         background-color: #dbeafe;
+         transform: scale(1.05);
+      }
+
+      .drop-zone-filled {
+         border: 3px solid #22c55e !important;
+         background-color: #dcfce7 !important;
+         color: #15803d !important;
+         box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+         font-family: 'Fredoka', sans-serif;
+      }
+   </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-10">
 
-  <div class="fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
-    <div class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl animate-bounce">➕</span>
-        <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Operasi Tambah</span>
+<body class="h-screen w-screen overflow-hidden text-slate-800 flex flex-col overscroll-none">
+
+   <div class="flex-none p-4 z-50 pointer-events-none w-full">
+      <div
+         class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-4 py-2 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
+         <div class="flex items-center gap-3">
+            <span class="text-2xl animate-bounce">➕</span>
+            <span id="info-text" class="text-lg font-bold text-green-900 leading-none mt-1">Operasi Tambah</span>
+         </div>
+         <button id="speak-btn" onclick="speakInfo()"
+            class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
       </div>
-      <button id="speak-btn" onclick="speakInfo()" class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
-    </div>
-  </div>
-  <div class="h-24"></div>
+   </div>
+   <div class="h-4"></div>
 
-  <div class="max-w-6xl mx-auto p-4">
-    
-    <div class="game-card p-6 mb-8 flex items-center justify-center">
-        <div id="activity-content" class="w-full relative z-10">
-            <div class="py-10 text-center">
-                <div class="text-8xl mb-6 animate-pulse">🧮</div>
-                <h2 class="text-5xl font-bold text-emerald-600 mb-4">Operasi Tambah</h2>
-                <p class="text-2xl text-slate-500 mb-8 font-semibold">Menambah Nombor 100 hingga 1000</p>
-                <div class="text-4xl animate-bounce">👇</div>
+   <div class="flex-1 w-full max-w-5xl mx-auto p-2 flex flex-col min-h-0">
+
+      <div class="game-card p-4 mb-2 flex-1 w-full">
+         <div id="activity-content" class="w-full h-full relative z-10 flex flex-col overflow-hidden">
+            <div class="py-10 text-center flex flex-col justify-center h-full">
+               <div class="text-6xl mb-4 animate-pulse">🧮</div>
+               <h2 class="text-3xl font-bold text-emerald-600 mb-2">Operasi Tambah</h2>
+               <p class="text-lg text-slate-500 mb-4 font-semibold">Menambah 100 - 1000</p>
+               <div class="text-2xl animate-bounce">👇</div>
             </div>
-        </div>
-    </div>
-
-    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border-2 border-white">
-      <h3 class="text-2xl font-bold text-slate-700 mb-4 text-center">🎮 Pilih Aktiviti</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <button onclick="loadActivity(1)" class="btn-3d bg-blue-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🎯 Penambah Lajur</button>
-        <button onclick="loadActivity(2)" class="btn-3d bg-emerald-500 text-white font-bold py-4 px-2 rounded-xl text-lg">📏 Susun Nombor</button>
-        <button onclick="loadActivity(3)" class="btn-3d bg-violet-500 text-white font-bold py-4 px-2 rounded-xl text-lg">💡 Simulator KS</button>
-        <button onclick="loadActivity(4)" class="btn-3d bg-orange-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧱 Blok Visual</button>
-        <button onclick="loadActivity(5)" class="btn-3d bg-rose-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧩 Papan Cerakin</button>
+         </div>
       </div>
 
-      <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-6">
-        <button onclick="clearActivity()" class="btn-3d bg-slate-400 text-white font-bold py-2 px-6 rounded-full text-lg">🏠 Menu</button>
-        <button onclick="nextActivity()" class="btn-3d bg-indigo-500 text-white font-bold py-2 px-8 rounded-full text-xl">Seterusnya ➡️</button>
+      <div class="flex-none bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-2 border-2 border-white">
+         <h3 class="text-lg font-bold text-slate-700 mb-2 text-center">🎮 Pilih Aktiviti</h3>
+
+         <div class="grid grid-cols-5 gap-2 mb-2">
+            <button onclick="loadActivity(1)"
+               class="btn-3d bg-blue-500 text-white font-bold py-2 px-1 rounded-xl text-xs">🎯<br>Lajur</button>
+            <button onclick="loadActivity(2)"
+               class="btn-3d bg-emerald-500 text-white font-bold py-2 px-1 rounded-xl text-xs">📏<br>Susun</button>
+            <button onclick="loadActivity(3)"
+               class="btn-3d bg-violet-500 text-white font-bold py-2 px-1 rounded-xl text-xs">💡<br>Sim</button>
+            <button onclick="loadActivity(4)"
+               class="btn-3d bg-orange-500 text-white font-bold py-2 px-1 rounded-xl text-xs">🧱<br>Blok</button>
+            <button onclick="loadActivity(5)"
+               class="btn-3d bg-rose-500 text-white font-bold py-2 px-1 rounded-xl text-xs">🧩<br>Cerakin</button>
+         </div>
+
+         <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-2">
+            <button onclick="clearActivity()"
+               class="btn-3d bg-slate-400 text-white font-bold py-1 px-4 rounded-full text-sm">🏠 Menu</button>
+            <button onclick="nextActivity()"
+               class="btn-3d bg-indigo-500 text-white font-bold py-1 px-6 rounded-full text-base">Seterusnya ➡️</button>
+         </div>
       </div>
-    </div>
-  </div>
+   </div>
 
-  <script>
-    /* --- STANDARD HELPERS --- */
-    let currentActivity = 0;
-    let ttsEnabled = false;
-    let currentInfo = "Pilih aktiviti untuk mula.";
-    let draggedElement = null;
-    const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+   <script>
+      /* --- STANDARD HELPERS --- */
+      let currentActivity = 0;
+      let ttsEnabled = false;
+      let currentInfo = "Pilih aktiviti untuk mula.";
+      let draggedElement = null;
+      const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    function triggerWin() { confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); }
-    
-    function speak(text) { 
-        if (!ttsEnabled || !('speechSynthesis' in window)) return; 
-        window.speechSynthesis.cancel(); 
-        const u = new SpeechSynthesisUtterance(text); 
-        u.lang = 'ms-MY'; u.rate = 0.9; u.pitch = 1.1; 
-        const voices = window.speechSynthesis.getVoices(); 
-        const ms = voices.find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms')); 
-        if (ms) u.voice = ms; 
-        window.speechSynthesis.speak(u); 
-    }
-    
-    function setInfo(text) { 
-        currentInfo = text; 
-        const infoEl = document.getElementById('info-text'); 
-        infoEl.style.opacity = 0; 
-        setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200); 
-    }
-    
-    function speakInfo() { 
-        if (!ttsEnabled) { 
-            ttsEnabled = true; 
-            document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); 
-        } 
-        speak(currentInfo); 
-    }
+      function triggerWin() { confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); }
 
-    /* --- DRAG AND DROP --- */
-    window.dragStart = function(e) { draggedElement = e.target; e.target.classList.add('dragging'); if(e.target.dataset.number) e.dataTransfer.setData('number', e.target.dataset.number); }
-    window.dragEnd = function(e) { if(draggedElement) draggedElement.classList.remove('dragging'); draggedElement = null; document.querySelectorAll('.drop-zone').forEach(z=>z.classList.remove('drag-over')); }
-    window.allowDrop = function(e) { e.preventDefault(); if (e.currentTarget.classList.contains('drop-zone')) e.currentTarget.classList.add('drag-over'); }
-    window.dragLeave = function(e) { if (e.currentTarget.classList.contains('drop-zone')) e.currentTarget.classList.remove('drag-over'); }
-
-    /* --- ROUTER --- */
-    function loadActivity(n) {
-      currentActivity = n;
-      const content = document.getElementById('activity-content');
-      content.style.opacity = 0;
-      setTimeout(() => {
-          if (n === 1) loadActivity1_ColumnAdd(content);
-          if (n === 2) loadActivity2_Align(content);
-          if (n === 3) loadActivity3_Simulator(content);
-          if (n === 4) loadActivity4_VisualBlocks(content);
-          if (n === 5) loadActivity5_Expanded(content);
-          content.style.opacity = 1;
-      }, 200);
-    }
-
-    function clearActivity() {
-        currentActivity = 0;
-        document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-bounce">🧮</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Operasi Tambah</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih butang di bawah.</p></div>`;
-        setInfo("Pilih aktiviti untuk mula.");
-    }
-    function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
-
-    /* =========================================
-       AKTIVITI 1: Penambah Lajur
-       ========================================= */
-    function loadActivity1_ColumnAdd(content) {
-      const q = { n1: [2,3,4], n2: [1,2,1], n3: [3,1,2], aRa: 6, aPu: 6, aSa: 7 };
-      setInfo("Tambah nombor dari lajur 'Sa'.");
-      
-      content.innerHTML = `
-        <h3 class="text-4xl font-bold text-blue-500 mb-6 text-center">🎯 Penambah Lajur</h3>
-        <div class="flex justify-center">
-          <div class="bg-blue-50 border-4 border-blue-200 rounded-3xl p-8 inline-block shadow-sm">
-            <div class="lazim-grid">
-              <div class="lazim-row">
-                <span class="lazim-cell"></span><span class="lazim-cell">${q.n1[0]}</span><span class="lazim-cell">${q.n1[1]}</span><span class="lazim-cell">${q.n1[2]}</span>
-              </div>
-              <div class="lazim-row">
-                <span class="lazim-cell"></span><span class="lazim-cell">${q.n2[0]}</span><span class="lazim-cell">${q.n2[1]}</span><span class="lazim-cell">${q.n2[2]}</span>
-              </div>
-              <div class="lazim-row">
-                <span class="lazim-cell-plus">+</span><span class="lazim-cell">${q.n3[0]}</span><span class="lazim-cell">${q.n3[1]}</span><span class="lazim-cell">${q.n3[2]}</span>
-              </div>
-              
-              <div class="lazim-hr"></div>
-              
-              <div class="lazim-row">
-                <span class="lazim-cell"></span>
-                <input type="number" id="ans-ra" class="lazim-input" data-correct="${q.aRa}" maxlength="1" disabled />
-                <input type="number" id="ans-pu" class="lazim-input" data-correct="${q.aPu}" maxlength="1" disabled />
-                <input type="number" id="ans-sa" class="lazim-input" data-correct="${q.aSa}" maxlength="1" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="a1-feedback" class="mt-8 text-center text-xl font-bold text-blue-700 h-8"></div>
-        <div class="text-center mt-6"><button onclick="loadActivity(1)" class="btn-3d bg-emerald-500 text-white font-bold py-2 px-6 rounded-xl">🔄 Soalan Baru</button></div>
-      `;
-
-      const inpSa = document.getElementById('ans-sa');
-      const inpPu = document.getElementById('ans-pu');
-      const inpRa = document.getElementById('ans-ra');
-      const feedback = document.getElementById('a1-feedback');
-      
-      inpSa.focus();
-      
-      // Helpers
-      function check(curr, next, msg) {
-          if(curr.value.length === 0) return;
-          curr.classList.remove('wrong');
-          if(curr.value === curr.dataset.correct) {
-              curr.classList.add('correct'); curr.disabled = true;
-              feedback.textContent = msg; setInfo(msg); speak(msg);
-              if(next) { next.disabled = false; next.focus(); }
-              else { triggerWin(); }
-          } else {
-              curr.classList.add('wrong'); feedback.textContent = "Cuba lagi.";
-          }
+      function speak(text) {
+         if (!ttsEnabled || !('speechSynthesis' in window)) return;
+         window.speechSynthesis.cancel();
+         const u = new SpeechSynthesisUtterance(text);
+         u.lang = 'ms-MY'; u.rate = 0.9; u.pitch = 1.1;
+         const voices = window.speechSynthesis.getVoices();
+         const ms = voices.find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms'));
+         if (ms) u.voice = ms;
+         window.speechSynthesis.speak(u);
       }
 
-      inpSa.addEventListener('keyup', () => check(inpSa, inpPu, "Bagus! Sekarang Puluh."));
-      inpPu.addEventListener('keyup', () => check(inpPu, inpRa, "Betul! Sekarang Ratus."));
-      inpRa.addEventListener('keyup', () => check(inpRa, null, "Syabas! Jawapan betul!"));
-    }
-
-    /* =========================================
-       AKTIVITI 2: Susun Nombor
-       ========================================= */
-    function loadActivity2_Align(content) {
-      setInfo("Seret nombor ke tempat yang betul.");
-      const numbers = [245, 31, 6];
-      const shuffled = [...numbers].sort(() => Math.random() - 0.5);
-      
-      content.innerHTML = `
-        <h3 class="text-4xl font-bold text-emerald-500 mb-6 text-center">📏 Susun Nombor</h3>
-        <div class="text-center mb-6 text-2xl text-slate-600 font-bold bg-white inline-block px-6 py-2 rounded-xl shadow-sm border-2 border-slate-100">245 + 31 + 6</div>
-        
-        <div class="flex flex-col md:flex-row gap-12 justify-center items-start">
-           <div class="flex flex-col gap-4 bg-emerald-50 p-6 rounded-3xl border-4 border-emerald-100">
-              ${shuffled.map(num => `
-                <div class="number-card bg-white border-emerald-400 text-emerald-800 p-4 text-3xl font-bold w-32 text-center shadow-sm"
-                     draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" data-number="${num}">${num}</div>
-              `).join('')}
-           </div>
-           
-           <div class="bg-white border-4 border-slate-300 rounded-3xl p-8 flex flex-col gap-4 items-end shadow-lg" style="min-width: 250px;">
-              <div class="drop-zone w-full h-16 text-3xl text-slate-300 font-bold" data-correct="245" 
-                   ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
-              <div class="drop-zone w-full h-16 text-3xl text-slate-300 font-bold" data-correct="31" 
-                   ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
-              <div class="drop-zone w-full h-16 text-3xl text-slate-300 font-bold" data-correct="6" 
-                   ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
-              <div class="w-full border-t-4 border-slate-800 mt-2"></div>
-           </div>
-        </div>
-      `;
-    }
-
-    window.dropOnAlign = function(e) {
-      e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-      if (!draggedElement) return;
-      
-      const draggedNumber = draggedElement.dataset.number;
-      const correctNumber = e.currentTarget.dataset.correct;
-
-      if (draggedNumber === correctNumber) {
-        e.currentTarget.innerHTML = draggedNumber; 
-        e.currentTarget.classList.add('drop-zone-filled');
-        e.currentTarget.classList.remove('drop-zone', 'text-slate-300');
-        e.currentTarget.style.justifyContent = 'flex-end';
-        e.currentTarget.style.paddingRight = '1rem';
-        e.currentTarget.removeAttribute('ondrop');
-        draggedElement.remove(); draggedElement = null;
-        
-        const msg = `Betul! ${draggedNumber} diletak.`; 
-        setInfo(msg); speak(msg);
-        
-        if (document.querySelectorAll('.drop-zone').length === 0) {
-           setInfo("Semua nombor disusun dengan betul!");
-           triggerWin();
-        }
-      } else {
-        setInfo("Salah tempat.");
-        e.currentTarget.classList.add('shake');
-        setTimeout(() => e.currentTarget.classList.remove('shake'), 500);
+      function setInfo(text) {
+         currentInfo = text;
+         const infoEl = document.getElementById('info-text');
+         infoEl.style.opacity = 0;
+         setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200);
       }
-    }
 
-    /* =========================================
-       AKTIVITI 3: Simulator KS (Kumpul Semula)
-       ========================================= */
-    function loadActivity3_Simulator(content) {
-      const q = { n1: [3,4,7], n2: [1,7,6], sumSa: 13, sumPu: 12, sumRa: 5 };
-      setInfo("Tambah dari Sa. Taip jumlah (cth: 13).");
-      
-      content.innerHTML = `
-        <h3 class="text-4xl font-bold text-purple-500 mb-6 text-center">💡 Simulator Kumpul Semula</h3>
-        <div class="flex justify-center">
-          <div class="bg-purple-50 border-4 border-purple-200 rounded-3xl p-8 inline-block shadow-sm">
-              <div class="lazim-grid">
-                <div class="lazim-row mb-2" style="height: 2.5rem;"> 
-                   <span class="w-[3.5rem]"></span>
-                   <span class="lazim-carry-box" id="carry-ra"></span>
-                   <span class="lazim-carry-box" id="carry-pu"></span>
-                   <span class="w-[3.5rem]"></span> 
+      function speakInfo() {
+         if (!ttsEnabled) {
+            ttsEnabled = true;
+            document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600');
+         }
+         speak(currentInfo);
+      }
+
+      /* --- DRAG AND DROP --- */
+      window.dragStart = function (e) { draggedElement = e.target; e.target.classList.add('dragging'); if (e.target.dataset.number) e.dataTransfer.setData('number', e.target.dataset.number); }
+      window.dragEnd = function (e) { if (draggedElement) draggedElement.classList.remove('dragging'); draggedElement = null; document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over')); }
+      window.allowDrop = function (e) { e.preventDefault(); if (e.currentTarget.classList.contains('drop-zone')) e.currentTarget.classList.add('drag-over'); }
+      window.dragLeave = function (e) { if (e.currentTarget.classList.contains('drop-zone')) e.currentTarget.classList.remove('drag-over'); }
+
+      /* --- ROUTER --- */
+      function loadActivity(n) {
+         currentActivity = n;
+         const content = document.getElementById('activity-content');
+         content.style.opacity = 0;
+         setTimeout(() => {
+            if (n === 1) loadActivity1_ColumnAdd(content);
+            if (n === 2) loadActivity2_Align(content);
+            if (n === 3) loadActivity3_Simulator(content);
+            if (n === 4) loadActivity4_VisualBlocks(content);
+            if (n === 5) loadActivity5_Expanded(content);
+            content.style.opacity = 1;
+         }, 200);
+      }
+
+      function clearActivity() {
+         currentActivity = 0;
+         document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center flex flex-col justify-center h-full"><div class="text-6xl mb-4 animate-bounce">🧮</div><h2 class="text-3xl font-bold text-emerald-600 mb-2">Operasi Tambah</h2><p class="text-lg text-slate-500 mb-4 font-semibold">Pilih butang di bawah.</p></div>`;
+         setInfo("Pilih aktiviti untuk mula.");
+      }
+      function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
+
+      /* =========================================
+         AKTIVITI 1: Penambah Lajur
+         ========================================= */
+      function loadActivity1_ColumnAdd(content) {
+         const q = { n1: [2, 3, 4], n2: [1, 2, 1], n3: [3, 1, 2], aRa: 6, aPu: 6, aSa: 7 };
+         setInfo("Tambah nombor dari lajur 'Sa'.");
+
+         content.innerHTML = `
+          <h3 class="text-xl font-bold text-blue-500 mb-2 text-center flex-none">🎯 Penambah Lajur</h3>
+          <div class="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto">
+              <div class="bg-blue-50 border-4 border-blue-200 rounded-3xl p-4 inline-block shadow-sm mb-2 flex-none">
+                <div class="lazim-grid">
+                  <div class="lazim-row">
+                    <span class="lazim-cell"></span><span class="lazim-cell">${q.n1[0]}</span><span class="lazim-cell">${q.n1[1]}</span><span class="lazim-cell">${q.n1[2]}</span>
+                  </div>
+                  <div class="lazim-row">
+                    <span class="lazim-cell"></span><span class="lazim-cell">${q.n2[0]}</span><span class="lazim-cell">${q.n2[1]}</span><span class="lazim-cell">${q.n2[2]}</span>
+                  </div>
+                  <div class="lazim-row">
+                    <span class="lazim-cell-plus">+</span><span class="lazim-cell">${q.n3[0]}</span><span class="lazim-cell">${q.n3[1]}</span><span class="lazim-cell">${q.n3[2]}</span>
+                  </div>
+                  
+                  <div class="lazim-hr"></div>
+                  
+                  <div class="lazim-row">
+                    <span class="lazim-cell"></span>
+                    <input type="number" id="ans-ra" class="lazim-input" data-correct="${q.aRa}" maxlength="1" disabled />
+                    <input type="number" id="ans-pu" class="lazim-input" data-correct="${q.aPu}" maxlength="1" disabled />
+                    <input type="number" id="ans-sa" class="lazim-input" data-correct="${q.aSa}" maxlength="1" />
+                  </div>
                 </div>
-                <div class="lazim-row">
-                   <span class="lazim-cell"></span><span class="lazim-cell">${q.n1[0]}</span><span class="lazim-cell">${q.n1[1]}</span><span class="lazim-cell">${q.n1[2]}</span>
-                </div>
-                <div class="lazim-row">
-                   <span class="lazim-cell-plus">+</span><span class="lazim-cell">${q.n2[0]}</span><span class="lazim-cell">${q.n2[1]}</span><span class="lazim-cell">${q.n2[2]}</span>
-                </div>
-                <div class="lazim-hr"></div>
-                <div class="lazim-row">
-                   <span class="lazim-cell"></span> 
-                   <input type="number" id="ans-ra" class="lazim-input" data-correct="${q.sumRa}" maxlength="2" disabled />
-                   <input type="number" id="ans-pu" class="lazim-input" data-correct="${q.sumPu}" maxlength="2" disabled />
-                   <input type="number" id="ans-sa" class="lazim-input" data-correct="${q.sumSa}" maxlength="2" />
-                </div>
-             </div>
+              </div>
+
+              <div id="a1-feedback" class="mt-2 text-center text-lg font-bold text-blue-700 h-6 flex-none"></div>
+              <div class="text-center mt-2 flex-none"><button onclick="loadActivity(1)" class="btn-3d bg-emerald-500 text-white font-bold py-2 px-6 rounded-xl text-base">🔄 Soalan Baru</button></div>
           </div>
-        </div>
-        <div id="a3-feedback" class="mt-8 text-center text-xl font-bold text-purple-700 h-8"></div>
-      `;
+        `;
 
-      const inpSa = document.getElementById('ans-sa');
-      const inpPu = document.getElementById('ans-pu');
-      const inpRa = document.getElementById('ans-ra');
-      const carryPu = document.getElementById('carry-pu');
-      const carryRa = document.getElementById('carry-ra');
-      const feedback = document.getElementById('a3-feedback');
+         const inpSa = document.getElementById('ans-sa');
+         const inpPu = document.getElementById('ans-pu');
+         const inpRa = document.getElementById('ans-ra');
+         const feedback = document.getElementById('a1-feedback');
 
-      inpSa.focus();
+         inpSa.focus();
 
-      function checkSim(curr, carryBox, next, msg) {
-         if (curr.value === curr.dataset.correct.toString()) {
-            const valStr = curr.value; 
-            curr.value = valStr.slice(-1); 
-            curr.classList.add('correct'); curr.disabled = true;
+         // Helpers
+         function check(curr, next, msg) {
+            if (curr.value.length === 0) return;
+            curr.classList.remove('wrong');
+            if (curr.value === curr.dataset.correct) {
+               curr.classList.add('correct'); curr.disabled = true;
+               feedback.textContent = msg; setInfo(msg); speak(msg);
+               if (next) { next.disabled = false; next.focus(); }
+               else { triggerWin(); }
+            } else {
+               curr.classList.add('wrong'); feedback.textContent = "Cuba lagi.";
+            }
+         }
+
+         inpSa.addEventListener('keyup', () => check(inpSa, inpPu, "Bagus! Sekarang Puluh."));
+         inpPu.addEventListener('keyup', () => check(inpPu, inpRa, "Betul! Sekarang Ratus."));
+         inpRa.addEventListener('keyup', () => check(inpRa, null, "Syabas! Jawapan betul!"));
+      }
+
+      /* =========================================
+         AKTIVITI 2: Susun Nombor
+         ========================================= */
+      function loadActivity2_Align(content) {
+         setInfo("Seret nombor ke tempat yang betul.");
+         const numbers = [245, 31, 6];
+         const shuffled = [...numbers].sort(() => Math.random() - 0.5);
+
+         content.innerHTML = `
+        <h3 class="text-xl font-bold text-emerald-500 mb-2 text-center flex-none">📏 Susun Nombor</h3>
+        
+        <div class="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto">
+            <div class="text-center mb-4 text-xl text-slate-600 font-bold bg-white inline-block px-4 py-1 rounded-xl shadow-sm border-2 border-slate-100 flex-none">245 + 31 + 6</div>
             
-            carryBox.textContent = valStr.slice(0, 1); 
-            carryBox.classList.add('anim-fade-in');
+            <div class="flex flex-col gap-4 justify-center items-center w-full max-w-sm flex-none">
+               <div class="flex flex-row gap-2 bg-emerald-50 p-2 rounded-xl border-4 border-emerald-100 w-full justify-center">
+                  ${shuffled.map(num => `
+                    <div class="number-card bg-white border-emerald-400 text-emerald-800 p-2 text-xl font-bold w-16 text-center shadow-sm"
+                         draggable="true" ondragstart="dragStart(event)" ondragend="dragEnd(event)" data-number="${num}">${num}</div>
+                  `).join('')}
+               </div>
+               
+               <div class="bg-white border-4 border-slate-300 rounded-xl p-4 flex flex-col gap-2 items-end shadow-lg w-full" style="max-width: 200px;">
+                  <div class="drop-zone w-full h-10 text-xl text-slate-300 font-bold" data-correct="245" 
+                       ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
+                  <div class="drop-zone w-full h-10 text-xl text-slate-300 font-bold" data-correct="31" 
+                       ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
+                  <div class="drop-zone w-full h-10 text-xl text-slate-300 font-bold" data-correct="6" 
+                       ondrop="dropOnAlign(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">...</div>
+                  <div class="w-full border-t-4 border-slate-800 mt-1"></div>
+               </div>
+            </div>
+        </div>
+      `;
+      }
 
-            feedback.textContent = msg; setInfo(msg);
-            if (next) { next.disabled = false; next.focus(); }
+      window.dropOnAlign = function (e) {
+         e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+         if (!draggedElement) return;
+
+         const draggedNumber = draggedElement.dataset.number;
+         const correctNumber = e.currentTarget.dataset.correct;
+
+         if (draggedNumber === correctNumber) {
+            e.currentTarget.innerHTML = draggedNumber;
+            e.currentTarget.classList.add('drop-zone-filled');
+            e.currentTarget.classList.remove('drop-zone', 'text-slate-300');
+            e.currentTarget.style.justifyContent = 'flex-end';
+            e.currentTarget.style.paddingRight = '1rem';
+            e.currentTarget.removeAttribute('ondrop');
+            draggedElement.remove(); draggedElement = null;
+
+            const msg = `Betul! ${draggedNumber} diletak.`;
+            setInfo(msg); speak(msg);
+
+            if (document.querySelectorAll('.drop-zone').length === 0) {
+               setInfo("Semua nombor disusun dengan betul!");
+               triggerWin();
+            }
          } else {
-            curr.classList.add('wrong'); setTimeout(()=>curr.classList.remove('wrong'), 500);
+            setInfo("Salah tempat.");
+            e.currentTarget.classList.add('shake');
+            setTimeout(() => e.currentTarget.classList.remove('shake'), 500);
          }
       }
 
-      inpSa.addEventListener('keyup', (e) => { if (e.target.value.length < 2) return; checkSim(e.target, carryPu, inpPu, "Betul! 1 dibawa ke Puluh."); });
-      inpPu.addEventListener('keyup', (e) => { if (e.target.value.length < 2) return; checkSim(e.target, carryRa, inpRa, "Betul! 1 dibawa ke Ratus."); });
-      inpRa.addEventListener('keyup', (e) => { 
-        if (e.target.value === e.target.dataset.correct.toString()) {
-           e.target.disabled = true; e.target.classList.add('correct');
-           feedback.textContent = "Tahniah! Jawapan 523.";
-           setInfo("Tahniah!"); triggerWin();
-        }
-      });
-    }
+      /* =========================================
+         AKTIVITI 3: Simulator KS (Kumpul Semula)
+         ========================================= */
+      function loadActivity3_Simulator(content) {
+         const q = { n1: [3, 4, 7], n2: [1, 7, 6], sumSa: 13, sumPu: 12, sumRa: 5 };
+         setInfo("Tambah dari Sa. Taip jumlah (cth: 13).");
 
-    /* =========================================
-       AKTIVITI 4: Blok Visual
-       ========================================= */
-    function loadActivity4_VisualBlocks(content) {
-      setInfo("Tekan butang langkah demi langkah.");
-      content.innerHTML = `
-        <h3 class="text-4xl font-bold text-orange-500 mb-6 text-center">🧱 Blok Visual</h3>
-        <div class="bg-orange-50 rounded-3xl p-6 border-4 border-orange-100 max-w-2xl mx-auto">
-           <div class="grid grid-cols-3 gap-2 text-center text-sm font-bold text-slate-500 uppercase mb-2">
-              <div>Ratus</div><div>Puluh</div><div>Sa</div>
-           </div>
-
-           <div class="grid grid-cols-3 gap-2 border-b-2 border-orange-200 pb-2 min-h-[80px] items-end">
-              <div class="block-container" id="ra1"><div class="block-ra"></div></div>
-              <div class="block-container" id="pu1">${Array(4).fill('<div class="block-pu"></div>').join('')}</div>
-              <div class="block-container" id="sa1">${Array(7).fill('<div class="block-sa"></div>').join('')}</div>
-           </div>
-
-           <div class="grid grid-cols-3 gap-2 border-b-4 border-orange-400 py-2 min-h-[80px] items-end">
-              <div class="block-container" id="ra2"></div>
-              <div class="block-container" id="pu2">${Array(7).fill('<div class="block-pu"></div>').join('')}</div>
-              <div class="block-container" id="sa2">${Array(6).fill('<div class="block-sa"></div>').join('')}</div>
-           </div>
-
-           <div class="grid grid-cols-3 gap-2 pt-2 min-h-[100px] items-end bg-white rounded-xl mt-2">
-              <div class="block-container" id="res-ra"></div>
-              <div class="block-container" id="res-pu"></div>
-              <div class="block-container" id="res-sa"></div>
-           </div>
-        </div>
-
-        <div class="flex flex-wrap justify-center gap-3 mt-6">
-           <button id="step1" class="btn-3d bg-orange-500 text-white font-bold py-2 px-4 rounded-xl">1. Gabung Sa</button>
-           <button id="step2" class="btn-3d bg-slate-300 text-white font-bold py-2 px-4 rounded-xl" disabled>2. Kumpul Semula</button>
-           <button id="step3" class="btn-3d bg-slate-300 text-white font-bold py-2 px-4 rounded-xl" disabled>3. Gabung Puluh</button>
-           <button id="step4" class="btn-3d bg-slate-300 text-white font-bold py-2 px-4 rounded-xl" disabled>4. Kumpul Semula</button>
-           <button id="step5" class="btn-3d bg-slate-300 text-white font-bold py-2 px-4 rounded-xl" disabled>5. Gabung Ratus</button>
+         content.innerHTML = `
+        <h3 class="text-xl font-bold text-purple-500 mb-2 text-center flex-none">💡 Simulator KS</h3>
+        
+        <div class="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto">
+            <div class="bg-purple-50 border-4 border-purple-200 rounded-3xl p-4 inline-block shadow-sm flex-none">
+                <div class="lazim-grid">
+                  <div class="lazim-row mb-1" style="height: 2rem;"> 
+                     <span class="w-[2.5rem]"></span>
+                     <span class="lazim-carry-box" id="carry-ra"></span>
+                     <span class="lazim-carry-box" id="carry-pu"></span>
+                     <span class="w-[2.5rem]"></span> 
+                  </div>
+                  <div class="lazim-row">
+                     <span class="lazim-cell"></span><span class="lazim-cell">${q.n1[0]}</span><span class="lazim-cell">${q.n1[1]}</span><span class="lazim-cell">${q.n1[2]}</span>
+                  </div>
+                  <div class="lazim-row">
+                     <span class="lazim-cell-plus">+</span><span class="lazim-cell">${q.n2[0]}</span><span class="lazim-cell">${q.n2[1]}</span><span class="lazim-cell">${q.n2[2]}</span>
+                  </div>
+                  <div class="lazim-hr"></div>
+                  <div class="lazim-row">
+                     <span class="lazim-cell"></span> 
+                     <input type="number" id="ans-ra" class="lazim-input" data-correct="${q.sumRa}" maxlength="2" disabled />
+                     <input type="number" id="ans-pu" class="lazim-input" data-correct="${q.sumPu}" maxlength="2" disabled />
+                     <input type="number" id="ans-sa" class="lazim-input" data-correct="${q.sumSa}" maxlength="2" />
+                  </div>
+               </div>
+            </div>
+            <div id="a3-feedback" class="mt-4 text-center text-lg font-bold text-purple-700 h-6 flex-none"></div>
         </div>
       `;
-      
-      // Logic Steps
-      const sa1HTML = document.getElementById('sa1').innerHTML;
-      const sa2HTML = document.getElementById('sa2').innerHTML;
-      const pu1HTML = document.getElementById('pu1').innerHTML;
-      const pu2HTML = document.getElementById('pu2').innerHTML;
-      const ra1HTML = document.getElementById('ra1').innerHTML;
 
-      const resSa = document.getElementById('res-sa');
-      const resPu = document.getElementById('res-pu');
-      const resRa = document.getElementById('res-ra');
+         const inpSa = document.getElementById('ans-sa');
+         const inpPu = document.getElementById('ans-pu');
+         const inpRa = document.getElementById('ans-ra');
+         const carryPu = document.getElementById('carry-pu');
+         const carryRa = document.getElementById('carry-ra');
+         const feedback = document.getElementById('a3-feedback');
 
-      const nextBtn = (curr, next) => {
-         document.getElementById(curr).disabled = true;
-         document.getElementById(curr).classList.replace('bg-orange-500','bg-slate-300');
-         if(next) { 
-            const n = document.getElementById(next); 
-            n.disabled = false; n.classList.replace('bg-slate-300','bg-orange-500');
+         inpSa.focus();
+
+         function checkSim(curr, carryBox, next, msg) {
+            if (curr.value === curr.dataset.correct.toString()) {
+               const valStr = curr.value;
+               curr.value = valStr.slice(-1);
+               curr.classList.add('correct'); curr.disabled = true;
+
+               carryBox.textContent = valStr.slice(0, 1);
+               carryBox.classList.add('anim-fade-in');
+
+               feedback.textContent = msg; setInfo(msg);
+               if (next) { next.disabled = false; next.focus(); }
+            } else {
+               curr.classList.add('wrong'); setTimeout(() => curr.classList.remove('wrong'), 500);
+            }
          }
-      };
 
-      document.getElementById('step1').onclick = function() {
-         setInfo("7 Sa + 6 Sa = 13 Sa.");
-         resSa.innerHTML = sa1HTML + sa2HTML; nextBtn('step1','step2');
-      };
-      document.getElementById('step2').onclick = function() {
-         setInfo("Tukar 10 Sa jadi 1 Puluh.");
-         resSa.innerHTML = Array(3).fill('<div class="block-sa"></div>').join('');
-         resPu.innerHTML = '<div class="block-pu anim-pop-in"></div>' + resPu.innerHTML; 
-         nextBtn('step2','step3');
-      };
-      document.getElementById('step3').onclick = function() {
-         setInfo("Tambah Puluh asal.");
-         resPu.innerHTML += pu1HTML + pu2HTML; nextBtn('step3','step4');
-      };
-      document.getElementById('step4').onclick = function() {
-         setInfo("Tukar 10 Puluh jadi 1 Ratus.");
-         resPu.innerHTML = Array(2).fill('<div class="block-pu"></div>').join('');
-         resRa.innerHTML = '<div class="block-ra anim-pop-in"></div>' + resRa.innerHTML;
-         nextBtn('step4','step5');
-      };
-      document.getElementById('step5').onclick = function() {
-         setInfo("Tambah Ratus asal. Jawapan 223.");
-         resRa.innerHTML += ra1HTML; nextBtn('step5', null); triggerWin();
-      };
-    }
+         inpSa.addEventListener('keyup', (e) => { if (e.target.value.length < 2) return; checkSim(e.target, carryPu, inpPu, "Betul! 1 dibawa ke Puluh."); });
+         inpPu.addEventListener('keyup', (e) => { if (e.target.value.length < 2) return; checkSim(e.target, carryRa, inpRa, "Betul! 1 dibawa ke Ratus."); });
+         inpRa.addEventListener('keyup', (e) => {
+            if (e.target.value === e.target.dataset.correct.toString()) {
+               e.target.disabled = true; e.target.classList.add('correct');
+               feedback.textContent = "Tahniah! Jawapan 523.";
+               setInfo("Tahniah!"); triggerWin();
+            }
+         });
+      }
 
-    /* =========================================
-       AKTIVITI 5: Papan Cerakin
-       ========================================= */
-    function loadActivity5_Expanded(content) {
-      setInfo("Isi tempat kosong.");
-      content.innerHTML = `
-        <h3 class="text-4xl font-bold text-rose-500 mb-6 text-center">🧩 Papan Cerakin</h3>
-        <div class="max-w-xl mx-auto space-y-4">
-           <div class="bg-white p-4 rounded-2xl border-2 border-rose-100 shadow-sm">
-              <div class="font-bold text-rose-400 mb-2 text-center">Cerakin 245</div>
-              <div class="flex gap-2 justify-center">
-                 <input id="s1-ra" class="lazim-input" style="width:5rem;font-size:1.5rem" placeholder="200">
-                 <input id="s1-pu" class="lazim-input" style="width:5rem;font-size:1.5rem" placeholder="40">
-                 <input id="s1-sa" class="lazim-input" style="width:5rem;font-size:1.5rem" placeholder="5">
-                 <button onclick="chkS1()" class="btn-3d bg-rose-500 text-white px-4 py-2 rounded-lg ml-2">Semak</button>
-              </div>
-           </div>
-           
-           <div id="s2-box" class="bg-white p-4 rounded-2xl border-2 border-slate-100 opacity-50">
-              <div class="font-bold text-slate-400 mb-2 text-center">Cerakin 351</div>
-              <div class="flex gap-2 justify-center">
-                 <input id="s2-ra" class="lazim-input" style="width:5rem;font-size:1.5rem" disabled>
-                 <input id="s2-pu" class="lazim-input" style="width:5rem;font-size:1.5rem" disabled>
-                 <input id="s2-sa" class="lazim-input" style="width:5rem;font-size:1.5rem" disabled>
-                 <button id="btn-s2" onclick="chkS2()" class="btn-3d bg-slate-300 text-white px-4 py-2 rounded-lg ml-2" disabled>Semak</button>
-              </div>
-           </div>
-           
-           <div id="s3-box" class="bg-white p-4 rounded-2xl border-2 border-slate-100 opacity-50 text-center">
-               <div class="text-2xl font-bold text-slate-300" id="final-ans">Jawapan Akhir: ???</div>
-           </div>
+      /* =========================================
+         AKTIVITI 4: Blok Visual
+         ========================================= */
+      function loadActivity4_VisualBlocks(content) {
+         setInfo("Tekan butang langkah demi langkah.");
+         content.innerHTML = `
+        <h3 class="text-xl font-bold text-orange-500 mb-2 text-center flex-none">🧱 Blok Visual</h3>
+        
+        <div class="flex-1 w-full flex flex-col items-center justify-center overflow-y-auto">
+            <div class="bg-orange-50 rounded-2xl p-2 border-4 border-orange-100 max-w-lg mx-auto w-full flex-none">
+               <div class="grid grid-cols-3 gap-1 text-center text-xs font-bold text-slate-500 uppercase mb-1">
+                  <div>Ratus</div><div>Puluh</div><div>Sa</div>
+               </div>
+
+               <div class="grid grid-cols-3 gap-1 border-b-2 border-orange-200 pb-1 min-h-[60px] items-end">
+                  <div class="block-container" style="min-height:50px" id="ra1"><div class="block-ra"></div></div>
+                  <div class="block-container" style="min-height:50px" id="pu1">${Array(4).fill('<div class="block-pu"></div>').join('')}</div>
+                  <div class="block-container" style="min-height:50px" id="sa1">${Array(7).fill('<div class="block-sa"></div>').join('')}</div>
+               </div>
+
+               <div class="grid grid-cols-3 gap-1 border-b-4 border-orange-400 py-1 min-h-[60px] items-end">
+                  <div class="block-container" style="min-height:50px" id="ra2"></div>
+                  <div class="block-container" style="min-height:50px" id="pu2">${Array(7).fill('<div class="block-pu"></div>').join('')}</div>
+                  <div class="block-container" style="min-height:50px" id="sa2">${Array(6).fill('<div class="block-sa"></div>').join('')}</div>
+               </div>
+
+               <div class="grid grid-cols-3 gap-1 pt-1 min-h-[70px] items-end bg-white rounded-lg mt-1">
+                  <div class="block-container" style="min-height:60px" id="res-ra"></div>
+                  <div class="block-container" style="min-height:60px" id="res-pu"></div>
+                  <div class="block-container" style="min-height:60px" id="res-sa"></div>
+               </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 mt-2 flex-none">
+               <button id="step1" class="btn-3d bg-orange-500 text-white font-bold py-1 px-3 rounded-lg text-xs">1. Gabung Sa</button>
+               <button id="step2" class="btn-3d bg-slate-300 text-white font-bold py-1 px-3 rounded-lg text-xs" disabled>2. Kumpul Semula</button>
+               <button id="step3" class="btn-3d bg-slate-300 text-white font-bold py-1 px-3 rounded-lg text-xs" disabled>3. Gabung Puluh</button>
+               <button id="step4" class="btn-3d bg-slate-300 text-white font-bold py-1 px-3 rounded-lg text-xs" disabled>4. Kumpul Semula</button>
+               <button id="step5" class="btn-3d bg-slate-300 text-white font-bold py-1 px-3 rounded-lg text-xs" disabled>5. Gabung Ratus</button>
+            </div>
         </div>
       `;
 
-      window.chkS1 = function() {
-         if(val('s1-ra')=='200' && val('s1-pu')=='40' && val('s1-sa')=='5') {
-             setInfo("Betul!");
-             document.getElementById('s2-box').classList.remove('opacity-50');
-             ['s2-ra','s2-pu','s2-sa','btn-s2'].forEach(id => document.getElementById(id).disabled=false);
-             document.getElementById('btn-s2').classList.replace('bg-slate-300','bg-rose-500');
-         } else setInfo("Salah. Cuba: 200, 40, 5");
-      };
-      
-      window.chkS2 = function() {
-         if(val('s2-ra')=='300' && val('s2-pu')=='50' && val('s2-sa')=='1') {
-             document.getElementById('final-ans').innerHTML = "500 + 90 + 6 = <span class='text-rose-600'>596</span>";
-             document.getElementById('final-ans').classList.replace('text-slate-300','text-slate-700');
-             document.getElementById('s3-box').classList.remove('opacity-50');
-             triggerWin(); setInfo("Tahniah! Selesai.");
-         } else setInfo("Salah. Cuba: 300, 50, 1");
-      };
+         // Logic Steps
+         const sa1HTML = document.getElementById('sa1').innerHTML;
+         const sa2HTML = document.getElementById('sa2').innerHTML;
+         const pu1HTML = document.getElementById('pu1').innerHTML;
+         const pu2HTML = document.getElementById('pu2').innerHTML;
+         const ra1HTML = document.getElementById('ra1').innerHTML;
 
-      function val(id) { return document.getElementById(id).value; }
-    }
+         const resSa = document.getElementById('res-sa');
+         const resPu = document.getElementById('res-pu');
+         const resRa = document.getElementById('res-ra');
 
-    // Init TTS keepalive
-    if ('speechSynthesis' in window) setInterval(() => { if (window.speechSynthesis.paused) window.speechSynthesis.resume(); }, 1000);
+         const nextBtn = (curr, next) => {
+            document.getElementById(curr).disabled = true;
+            document.getElementById(curr).classList.replace('bg-orange-500', 'bg-slate-300');
+            if (next) {
+               const n = document.getElementById(next);
+               n.disabled = false; n.classList.replace('bg-slate-300', 'bg-orange-500');
+            }
+         };
 
-  </script>
+         document.getElementById('step1').onclick = function () {
+            setInfo("7 Sa + 6 Sa = 13 Sa.");
+            resSa.innerHTML = sa1HTML + sa2HTML; nextBtn('step1', 'step2');
+         };
+         document.getElementById('step2').onclick = function () {
+            setInfo("Tukar 10 Sa jadi 1 Puluh.");
+            resSa.innerHTML = Array(3).fill('<div class="block-sa"></div>').join('');
+            resPu.innerHTML = '<div class="block-pu anim-pop-in"></div>' + resPu.innerHTML;
+            nextBtn('step2', 'step3');
+         };
+         document.getElementById('step3').onclick = function () {
+            setInfo("Tambah Puluh asal.");
+            resPu.innerHTML += pu1HTML + pu2HTML; nextBtn('step3', 'step4');
+         };
+         document.getElementById('step4').onclick = function () {
+            setInfo("Tukar 10 Puluh jadi 1 Ratus.");
+            resPu.innerHTML = Array(2).fill('<div class="block-pu"></div>').join('');
+            resRa.innerHTML = '<div class="block-ra anim-pop-in"></div>' + resRa.innerHTML;
+            nextBtn('step4', 'step5');
+         };
+         document.getElementById('step5').onclick = function () {
+            setInfo("Tambah Ratus asal. Jawapan 223.");
+            resRa.innerHTML += ra1HTML; nextBtn('step5', null); triggerWin();
+         };
+      }
+
+      /* =========================================
+         AKTIVITI 5: Papan Cerakin
+         ========================================= */
+      function loadActivity5_Expanded(content) {
+         setInfo("Isi tempat kosong.");
+         content.innerHTML = `
+        <h3 class="text-xl font-bold text-rose-500 mb-2 text-center flex-none">🧩 Papan Cerakin</h3>
+        <div class="flex-1 overflow-y-auto">
+            <div class="max-w-md mx-auto space-y-2">
+               <div class="bg-white p-2 rounded-2xl border-2 border-rose-100 shadow-sm">
+                  <div class="font-bold text-rose-400 mb-1 text-center text-sm">Cerakin 245</div>
+                  <div class="flex gap-1 justify-center">
+                     <input id="s1-ra" class="lazim-input" style="width:4rem;font-size:1.2rem" placeholder="200">
+                     <input id="s1-pu" class="lazim-input" style="width:4rem;font-size:1.2rem" placeholder="40">
+                     <input id="s1-sa" class="lazim-input" style="width:4rem;font-size:1.2rem" placeholder="5">
+                     <button onclick="chkS1()" class="btn-3d bg-rose-500 text-white px-3 py-1 rounded-lg ml-1 text-sm">Semak</button>
+                  </div>
+               </div>
+               
+               <div id="s2-box" class="bg-white p-2 rounded-2xl border-2 border-slate-100 opacity-50">
+                  <div class="font-bold text-slate-400 mb-1 text-center text-sm">Cerakin 351</div>
+                  <div class="flex gap-1 justify-center">
+                     <input id="s2-ra" class="lazim-input" style="width:4rem;font-size:1.2rem" disabled>
+                     <input id="s2-pu" class="lazim-input" style="width:4rem;font-size:1.2rem" disabled>
+                     <input id="s2-sa" class="lazim-input" style="width:4rem;font-size:1.2rem" disabled>
+                     <button id="btn-s2" onclick="chkS2()" class="btn-3d bg-slate-300 text-white px-3 py-1 rounded-lg ml-1 text-sm" disabled>Semak</button>
+                  </div>
+               </div>
+               
+               <div id="s3-box" class="bg-white p-2 rounded-2xl border-2 border-slate-100 opacity-50 text-center">
+                   <div class="text-lg font-bold text-slate-300" id="final-ans">Jawapan Akhir: ???</div>
+               </div>
+            </div>
+        </div>
+      `;
+
+         window.chkS1 = function () {
+            if (val('s1-ra') == '200' && val('s1-pu') == '40' && val('s1-sa') == '5') {
+               setInfo("Betul!");
+               document.getElementById('s2-box').classList.remove('opacity-50');
+               ['s2-ra', 's2-pu', 's2-sa', 'btn-s2'].forEach(id => document.getElementById(id).disabled = false);
+               document.getElementById('btn-s2').classList.replace('bg-slate-300', 'bg-rose-500');
+            } else setInfo("Salah. Cuba: 200, 40, 5");
+         };
+
+         window.chkS2 = function () {
+            if (val('s2-ra') == '300' && val('s2-pu') == '50' && val('s2-sa') == '1') {
+               document.getElementById('final-ans').innerHTML = "500 + 90 + 6 = <span class='text-rose-600'>596</span>";
+               document.getElementById('final-ans').classList.replace('text-slate-300', 'text-slate-700');
+               document.getElementById('s3-box').classList.remove('opacity-50');
+               triggerWin(); setInfo("Tahniah! Selesai.");
+            } else setInfo("Salah. Cuba: 300, 50, 1");
+         };
+
+         function val(id) { return document.getElementById(id).value; }
+      }
+
+      // Init TTS keepalive
+      if ('speechSynthesis' in window) setInterval(() => { if (window.speechSynthesis.paused) window.speechSynthesis.resume(); }, 1000);
+
+   </script>
 </body>
+
 </html>
